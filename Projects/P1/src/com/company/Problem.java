@@ -13,21 +13,25 @@ public class Problem {
 
     }
     public HashSet<Action> applActions(State state) {
+        if(isGoalState(state)) return null; //at the goal states, there are no applicable actions.
         HashSet<Action> toReturn = new HashSet<>();
         Action z;
         for(int i=0;i<9;i++) {
                 if(isValid(i,state)) {
-                z = new Action(String.valueOf(i));
+//                    System.out.println("Here");
+                z = new Action(String.valueOf(i+1));
                 toReturn.add(z);
             }
 
         }
+        System.out.println(toReturn.size());
         return toReturn;
     }
 
     public State result(State state, Action action) {
-
-        state.board[Integer.parseInt(action.getPosition())] = state.activePlayer;
+       // System.out.println("Action val: " + action.getPosition());
+        if(Integer.parseInt(action.getPosition()) == 0) return state;
+        state.board[Integer.parseInt(action.getPosition())-1] = state.activePlayer;
         if(state.activePlayer.equalsIgnoreCase("X")){
             state.activePlayer = "O";
         } else if(state.activePlayer.equalsIgnoreCase("O")){
@@ -48,13 +52,18 @@ public class Problem {
             initState.board[i] = "e"; //e for empty;
         }
     }
-    boolean isGoalState(State state) {
+    public boolean isGoalState(State state) {
 
-        for(int i = 0; i<9;i++) {
-            if(state.board[i].equals("e") && utility(state) == 0) {
+    if(utility(state) == 0) {//meaning no one has won in the state
+        for (int i = 0; i < 9; i++) {
+            if (state.board[i].equals("e")) {
+//                System.out.println("Here");
                 return false;
             }
         }
+    }
+        //System.out.println("T");
+        //state.print3Board();
         return true;
     }
 

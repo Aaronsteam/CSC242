@@ -29,39 +29,6 @@ public class Set<E> extends Stack<Node> {
 
 
 
-    Action minimax_decision(Node n, Problem p) {
-        int min =-1000000;
-        Action minAction = new Action("9"); //9 placeholder action
-        for(Action a : p.applActions(n.getState())) {
-            if(min_val(p.result(n.getState(),a),p)>min) {
-                minAction = a;
-            }
 
-        }
-        return minAction;
-    }
-
-    private int max_val(State s, Problem p) {
-        if(p.isGoalState(s)) {
-            return p.utility(s);
-        }
-        int v = -1000000;
-
-        for(Action a: p.applActions(s)) {
-            v = Math.max(v, min_val(p.result(s,a),p));
-        }
-        return v;
-    }
-
-    private int min_val(State s, Problem p) {
-        if(p.isGoalState(s)) {
-            return p.utility(s);
-        }
-        int v = 1000000;
-        for(Action a: p.applActions(s)) {
-            v = Math.min(v, max_val(p.result(s,a),p));
-        }
-        return v;
-    }
 
 }
