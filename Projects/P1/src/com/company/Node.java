@@ -9,14 +9,26 @@ public class Node {
     private int minimaxVal;
 
 
+    public Node copy() {
+        Node returnNode = new Node();
+        returnNode.state= this.state.copy();
+        returnNode.children = this.children;
+        returnNode.minimaxVal = this.minimaxVal;
+        return returnNode;
+
+    }
+
+    public Node() {
+        children = new LinkedList<>();
+        state = new State();
+    }
+
     public void setMinimaxVal(int x) {
         minimaxVal = x;
     }
 
     public int getMinimaxVal(){
         return minimaxVal;
-    }
-    public Node() {
     }
 
     public void addChild(Node n) {
@@ -27,7 +39,7 @@ public class Node {
         return state;
     }
     void setState(State state) {
-       this.state = state;
+        this.state = state.copy();
     }
     public LinkedList<Node> expand() {
         return children;

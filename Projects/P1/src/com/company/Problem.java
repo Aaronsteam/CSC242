@@ -8,6 +8,14 @@ public class Problem {
 
 
 
+    public void populateActions(){
+        Action[] a = new Action[9];
+        for(int i = 0; i<9; i++) {
+            a[i] = new Action(String.valueOf(i) + 1);
+            this.addAction(a[i]);
+        }
+
+    }
     private boolean isValid(int position, State state) {
         return !(state.board[position].equalsIgnoreCase("x") || state.board[position].equalsIgnoreCase("o"));
 
@@ -30,14 +38,16 @@ public class Problem {
 
     public State result(State state, Action action) {
        // System.out.println("Action val: " + action.getPosition());
-        if(Integer.parseInt(action.getPosition()) == 0) return state;
-        state.board[Integer.parseInt(action.getPosition())-1] = state.activePlayer;
-        if(state.activePlayer.equalsIgnoreCase("X")){
-            state.activePlayer = "O";
-        } else if(state.activePlayer.equalsIgnoreCase("O")){
-            state.activePlayer = "X";
+        State temp = state.copy();
+        if(Integer.parseInt(action.getPosition()) == 0) return temp;
+        temp.board[Integer.parseInt(action.getPosition())-1] = temp.activePlayer;
+        System.out.println("Active player is " + temp.activePlayer);
+        if(temp.activePlayer.equalsIgnoreCase("X")){
+            temp.activePlayer = "O";
+        } else if(temp.activePlayer.equalsIgnoreCase("O")){
+            temp.activePlayer = "X";
         }
-        return state;
+        return temp;
     }
 
     public double cost(State init, Action action, State fin) {

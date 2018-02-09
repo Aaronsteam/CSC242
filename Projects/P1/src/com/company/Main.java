@@ -1,5 +1,6 @@
 package com.company;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Scanner;
 public class Main {
 
@@ -113,71 +114,80 @@ public class Main {
     }
     public static void makeTree(Node current, Problem p) {
         //first make the tree
-        if(p.applActions(current.getState()) == null) {
-            return;
+        //if(p.applActions(current.getState()) == null){
+          //  System.out.println("Cool");
+        //}
+        if(p.applActions(current.getState()) != null) {
+            for (Action a : p.applActions(current.getState())) {
+                State result = p.result(current.getState(),a);
+                Node childNode = new Node();
+                childNode.setState(result);
+                current.addChild(childNode);
+
+                //result.print3Board(); this prints every possible child of every node.
+
+                makeTree(childNode, p);
+            }
         }
 
-        for (Action a : p.applActions(current.getState())) {
-
-            Node childNode = new Node();
-            childNode.setState(p.result(current.getState(),a));
-
-            current.addChild(childNode);
-
-            p.result(current.getState(),a).print3Board();
-
-            makeTree(childNode, p);
-        }
     }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
-	// write your code here
         Problem tictactoe = new Problem();
-        Action[] a = new Action[9];
-        for(int i = 0; i<9; i++) {
-        a[i] = new Action(String.valueOf(i) + 1);
-        tictactoe.addAction(a[i]);
-        }
+        tictactoe.populateActions(); //adding actions to tictactoe
 
-        Node root = new Node();
+
+        Node root = new Node(); //root of the tree
+        Node copy = root.copy(); //trying to copy by value NOT reference
+
+        root.setState(tictactoe.getInitState()); //sets the root.state to where root.state.board[i] = "e" for all 0 <= i < 9
         Node current = root;
-        root.setState(tictactoe.getInitState());
-        makeTree(root,tictactoe);
-        String res = "F";
 
-        while(!res.equalsIgnoreCase("x") || !res.equalsIgnoreCase("y")) {
+        makeTree(root,tictactoe); // pass in the root to make the tree. How do I access the root?
+
+        LinkedList<Node> children = current.getChildren();
+        System.out.println("root is: ");
+        LinkedList<Node> copyChildren = copy.getChildren();
+        root.getState().print3Board();
+        String res;
+
+      //  while(!res.equalsIgnoreCase("n") || !res.equalsIgnoreCase("y")) {
             System.out.println("Welcome to the classic tic tac toe game!");
             System.out.println("Would you like to make the first move? (X always goes first) y/n");
             res = scanner.next();
             String move;
             if(res.equalsIgnoreCase("y")) {
-
                 while(true) {
-                    if(tictactoe.isGoalState(current.getState())) break;
-
+                    System.out.print("current is after y: ");
                     current.getState().print3Board();
+                    if(tictactoe.isGoalState(current.getState())) break;
+                    //System.out.print("Never come here");
+
+
 
                     System.out.println("Enter your move: ");
                     move = scanner.next();
                     State result = tictactoe.result(current.getState(), new Action(move));
 
-                    for(Node child : current.getChildren()) {
+                    for(Node child : current.getChildren()) { //getChildren() is empty
                         if(child.getState() == result)
                             current = child;
                     }
 
-                    current.getState().print3Board();
+                    //current.getState().print3Board();
 
                     int maxUtil = -1000000;
                     for(Node n : current.getChildren()) {
+                        System.out.println("Checking minimmax");
                         int currentMinimaxVal = n.getMinimaxVal();
                         if(currentMinimaxVal > maxUtil) {
                             maxUtil = currentMinimaxVal;
                             current = n;
                         }
                     }
+                    current.getState().print3Board();
+
                 }
 
             } else if(res.equalsIgnoreCase("n")) {
@@ -206,7 +216,7 @@ public class Main {
             } else {
                 System.out.println("wrong input");
             }
-        }
+     //   }
 
         if(tictactoe.utility(current.getState()) > 0) System.out.println("X won!");
         else if(tictactoe.utility(current.getState()) < 0) System.out.println("O won!");
