@@ -1,8 +1,9 @@
 public class Action {
-    int board;
-    int position;
+    private int board;
+    private int position;
 
-    public Action(int board, int position) {
+    Action(int board, int position) {
+        assert(board >= 0 && board <= 9 && position >= 0 && position <=9);
         this.board = board;
         this.position = position;
     }

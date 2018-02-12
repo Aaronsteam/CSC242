@@ -19,7 +19,7 @@ public class State {
 
     public void print3Board() {
         for(int i=0 ;i <9;i++) {
-            System.out.print(this.board[i] );
+            System.out.print(this.board[i]);
             if((i+1)%3 == 0) {
                 System.out.println();
             } else {
