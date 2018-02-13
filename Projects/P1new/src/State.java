@@ -21,7 +21,9 @@ public class State {
     public String[] getBoard() { return board; }
 
 
-    public void setBoard(int position, String move) { board[position] = move; }
+    public void setBoard(int position, String move) {
+        System.out.println("position="+position);
+        board[position] = move; }
 
     public State copy(){
         State sCopy = new State();

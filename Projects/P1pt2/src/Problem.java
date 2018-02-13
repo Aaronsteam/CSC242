@@ -30,9 +30,7 @@ public class Problem {
         if(activeState.getActiveBoard() == 0) {
             for(int i = 0; i < boardSize; i++) {
                 for(int j = 0; j < boardSize; j++) {
-                    if(activeState.spotEmpty(s.getBoard()[i][j])) {
-                        hApplicableActions.add(new Action(i+1, j+1));
-                    }
+                    if(activeState.spotEmpty(s.getBoard()[i][j])) hApplicableActions.add(new Action(i+1, j+1));
                 }
             }
         } else {
@@ -43,37 +41,47 @@ public class Problem {
                 }
             }
         }
-
-
         return hApplicableActions;
     }
-
-
 
     public void startGame(){
 
         System.err.println("Welcome to the 9x9 game");
-        System.err.println("Do you want to play first?");
-        if(scanner.nextLine().equalsIgnoreCase("y")){
+        System.err.println("Who do you want to play as (x/o)?");
+        String response = scanner.nextLine();
+        if(response.equalsIgnoreCase("x")){
             while(true) {
                 humanMove();
                 aiMove();
                 activeState.displayBoard();
                 if(isTerminalState(activeState)) break;
             }
-        } else {
+        } else if(response.equalsIgnoreCase("o")){
             while(true) {
                 aiMove();
                 activeState.displayBoard();
                 if(isTerminalState(activeState)) break;
                 humanMove();
+
             }
-        }
+        } else System.out.println("incorrect input");
+
+
+        whoWon();
+
+        System.err.println("Starting a new game...");
 
         System.err.println("Game over!");
     }
 
-    private boolean isTerminalState(State s) { return (isDraw(s) || isWon(s)); }
+
+    private void whoWon() {
+        if(isWon(activeState, "x")) System.err.println("X won!");
+        else if (isWon(activeState, "o")) System.err.println("O won!");
+        else System.err.println("It's a draw!");
+
+    }
+    private boolean isTerminalState(State s) { return (isDraw(s) || isWon(s, "x") || isWon(s, "o")); }
 
     private boolean isDraw(State s) {
         for(int board = 0; board < boardSize; board++) {
@@ -86,34 +94,34 @@ public class Problem {
         return true;
     }
 
-    private boolean isWon(State s) {
+    private boolean isWon(State s, String player) {
         for(int board = 0; board < boardSize; board++) {
-            if(checkHorizontal(s, board) || checkVertical(s, board) || checkDiagonal(s, board)) return true;
+            if(checkHorizontal(s, board, player) || checkVertical(s, board, player) || checkDiagonal(s, board, player)) return true;
         }
         return false;
     }
 
-    private boolean checkHorizontal(State s, int board) {
-        return(areEqualNotEmpty(s.getBoard()[board][0], s.getBoard()[board][1], s.getBoard()[board][2]) ||
-                areEqualNotEmpty(s.getBoard()[board][3], s.getBoard()[board][4], s.getBoard()[board][5]) ||
-                areEqualNotEmpty(s.getBoard()[board][6], s.getBoard()[board][7], s.getBoard()[board][8]));
+    private boolean checkHorizontal(State s, int board, String player) {
+        return(areEqualNotEmpty(s.getBoard()[board][0], s.getBoard()[board][1], s.getBoard()[board][2], player) ||
+                areEqualNotEmpty(s.getBoard()[board][3], s.getBoard()[board][4], s.getBoard()[board][5], player) ||
+                areEqualNotEmpty(s.getBoard()[board][6], s.getBoard()[board][7], s.getBoard()[board][8], player));
 
     }
 
-    private boolean checkVertical(State s, int board) {
-        return(areEqualNotEmpty(s.getBoard()[board][0], s.getBoard()[board][3], s.getBoard()[board][6]) ||
-                areEqualNotEmpty(s.getBoard()[board][1], s.getBoard()[board][4], s.getBoard()[board][7]) ||
-                areEqualNotEmpty(s.getBoard()[board][2], s.getBoard()[board][5], s.getBoard()[board][8]));
+    private boolean checkVertical(State s, int board, String player) {
+        return(areEqualNotEmpty(s.getBoard()[board][0], s.getBoard()[board][3], s.getBoard()[board][6], player) ||
+                areEqualNotEmpty(s.getBoard()[board][1], s.getBoard()[board][4], s.getBoard()[board][7], player) ||
+                areEqualNotEmpty(s.getBoard()[board][2], s.getBoard()[board][5], s.getBoard()[board][8], player));
     }
 
-    private boolean checkDiagonal(State s, int board) {
-        return(areEqualNotEmpty(s.getBoard()[board][0], s.getBoard()[board][4], s.getBoard()[board][8]) ||
-                areEqualNotEmpty(s.getBoard()[board][2], s.getBoard()[board][4], s.getBoard()[board][6]));
+    private boolean checkDiagonal(State s, int board, String player) {
+        return(areEqualNotEmpty(s.getBoard()[board][0], s.getBoard()[board][4], s.getBoard()[board][8], player) ||
+                areEqualNotEmpty(s.getBoard()[board][2], s.getBoard()[board][4], s.getBoard()[board][6], player));
     }
 
     //checks if the moves are equal and non empty
-    private boolean areEqualNotEmpty(String a, String b, String c) {
-        return (a.equalsIgnoreCase(b) && a.equalsIgnoreCase(c) && !a.equalsIgnoreCase(" "));
+    private boolean areEqualNotEmpty(String a, String b, String c, String player) {
+        return (a.equalsIgnoreCase(player) && b.equalsIgnoreCase(player) && c.equalsIgnoreCase(player) && !a.equalsIgnoreCase(" "));
     }
 
     private void humanMove() {

@@ -5,6 +5,7 @@ public class Problem {
     private Scanner scanner = new Scanner(System.in);
     private State activeState;
     private int numPositions = 9;
+    private boolean aiMaximize = false;
 
     Problem() {
         activeState = new State();
@@ -35,38 +36,48 @@ public class Problem {
         return hApplicableActions;
     }
 
-
-
     public void startGame(){
-
+        activeState = setEmpty();
         System.err.println("Welcome to the 3x3 game");
-        System.err.println("Do you want to play first?");
-        if(scanner.nextLine().equalsIgnoreCase("y")){
+        System.err.println("What do you want to play as?");
+        String response = scanner.nextLine();
+        if(response.equalsIgnoreCase("x")){
             while(true) {
+                aiMaximize = false; //means that the ai wants to maximize the utility.
                 humanMove();
                 aiMove();
                 activeState.displayBoard();
                 if(isTerminalState(activeState)) break;
+            }
+        } else if(response.equalsIgnoreCase("o")){
+            while(true) {
+                aiMaximize = true; //means that the ai wants to minimize utility
+                aiMove();
+                activeState.displayBoard();
+                if(isTerminalState(activeState)) break;
+                humanMove();
             }
         } else {
-            while(true) {
-                aiMove();
-                activeState.displayBoard();
-                if(isTerminalState(activeState)) break;
-                humanMove();
-            }
+            System.err.println("Invalid input");
         }
 
-        System.err.println("Game over!");
+        System.out.println("last active state");
+        activeState.displayBoard();
+        if(utility(activeState) == 1) System.err.println("X won!");
+        else if (utility(activeState) == -1) System.err.println("O won!");
+        else if(utility(activeState) == 0) System.err.println("It's a draw!");
+        else System.err.println("Something went wrong with calculating the winner");
+        System.err.println("Starting a new game...");
+      //  startGame();
     }
 
     private boolean isTerminalState(State s) { return (isDraw(s) || isWon(s)); }
 
     private boolean isDraw(State s) {
 
-            for(int position = 0; position < numPositions; position++) {
-                if(s.getBoard()[position].equalsIgnoreCase(" ")) return false;
-            }
+        for(int position = 0; position < numPositions; position++) {
+            if(s.getBoard()[position].equalsIgnoreCase(" ")) return false;
+        }
         return true;
     }
 
@@ -90,8 +101,7 @@ public class Problem {
     }
 
     private boolean checkDiagonal(State s) {
-        return(areEqualNotEmpty(s.getBoard()[0], s.getBoard()[4], s.getBoard()[8]) ||
-                areEqualNotEmpty(s.getBoard()[2], s.getBoard()[4], s.getBoard()[6]));
+        return(areEqualNotEmpty(s.getBoard()[0], s.getBoard()[4], s.getBoard()[8]) || areEqualNotEmpty(s.getBoard()[2], s.getBoard()[4], s.getBoard()[6]));
     }
 
     //checks if the moves are equal and non empty
@@ -122,9 +132,9 @@ public class Problem {
 
     private State result(State s, Action a) {
         State sResult = s.copy();
-
+        assert(a.getPosition()>=1 && a.getPosition()<=9);
         //adding the move on the board
-        sResult.setBoard(a.getPosition()-1, s.getActivePlayer());
+        if(a.getPosition()>0) sResult.setBoard(a.getPosition()-1, s.getActivePlayer());
 
         //changing the active move (X or O)
         if(sResult.getActivePlayer().equalsIgnoreCase("X")) {
@@ -138,16 +148,36 @@ public class Problem {
     }
 
     private Action minimaxDecision(State s){
-        int max = Integer.MIN_VALUE;
-        int minVal;
         Action aDecision = new Action(0);
-        for(Action a: applicableActions(s)) {
-            minVal = minVal(result(s,a));
-            if(minVal > max) {
-                max = minVal;
-                aDecision = a;
+
+        if(aiMaximize/*|| !aiMaximize*/) {
+            int max = Integer.MIN_VALUE;
+            int minVal;
+            for(Action a: applicableActions(s)) {
+                State result = result(s,a);
+                minVal = minVal(result);
+                System.out.println("minVal="+minVal+ " " + "move=" );
+                result.displayBoard();
+                System.out.println();
+                if(minVal > max) {
+                    max = minVal;
+                    aDecision = a;
+                }
+            }
+        } else {
+            int min = Integer.MAX_VALUE;
+            int maxVal;
+            for(Action a: applicableActions(s)) {
+                State result = result(s,a);
+                maxVal = maxVal(result);
+                System.out.println("maxVal="+maxVal);
+                if(maxVal <  min) {
+                    min = maxVal;
+                    aDecision = a;
+                }
             }
         }
+
         return aDecision;
     }
 
@@ -179,27 +209,27 @@ public class Problem {
             if (s.getBoard()[0].equalsIgnoreCase("x")) return 1;
             return -1;
         }
-        if ((!s.spotEmpty(s.getBoard()[3]) && s.getBoard()[3].equalsIgnoreCase(s.getBoard()[4]) && s.getBoard()[4].equalsIgnoreCase(s.getBoard()[5]))) {
-            if(s.getBoard()[0].equalsIgnoreCase("x")) return 1;
+        if ((!s.spotEmpty(s.getBoard()[3]) && s.getBoard()[3].equalsIgnoreCase(s.getBoard()[4]) && s.getBoard()[3].equalsIgnoreCase(s.getBoard()[5]))) {
+            if(s.getBoard()[3].equalsIgnoreCase("x")) return 1;
             return -1;
         }
-        if ((!s.spotEmpty(s.getBoard()[6]) && s.getBoard()[6].equalsIgnoreCase(s.getBoard()[7]) && s.getBoard()[7].equalsIgnoreCase(s.getBoard()[8]))) {
+        if ((!s.spotEmpty(s.getBoard()[6]) && s.getBoard()[6].equalsIgnoreCase(s.getBoard()[7]) && s.getBoard()[6].equalsIgnoreCase(s.getBoard()[8]))) {
             if(s.getBoard()[6].equalsIgnoreCase("x")) return 1;
             return -1;
         }
-        if ((!s.spotEmpty(s.getBoard()[0]) && s.getBoard()[0].equalsIgnoreCase(s.getBoard()[3]) && s.getBoard()[1].equalsIgnoreCase(s.getBoard()[6]))) {
+        if ((!s.spotEmpty(s.getBoard()[0]) && s.getBoard()[0].equalsIgnoreCase(s.getBoard()[3]) && s.getBoard()[0].equalsIgnoreCase(s.getBoard()[6]))) {
             if (s.getBoard()[0].equalsIgnoreCase("x")) return 1;
             return -1;
         }
-        if ((!s.spotEmpty(s.getBoard()[1]) && s.getBoard()[1].equalsIgnoreCase(s.getBoard()[4]) && s.getBoard()[4].equalsIgnoreCase(s.getBoard()[7]))) {
-            if(s.getBoard()[0].equalsIgnoreCase("x")) return 1;
+        if ((!s.spotEmpty(s.getBoard()[1]) && s.getBoard()[1].equalsIgnoreCase(s.getBoard()[4]) && s.getBoard()[1].equalsIgnoreCase(s.getBoard()[7]))) {
+            if(s.getBoard()[1].equalsIgnoreCase("x")) return 1;
             return -1;
         }
-        if ((!s.spotEmpty(s.getBoard()[2]) && s.getBoard()[2].equalsIgnoreCase(s.getBoard()[5]) && s.getBoard()[5].equalsIgnoreCase(s.getBoard()[8]))) {
-            if(s.getBoard()[6].equalsIgnoreCase("x")) return 1;
+        if ((!s.spotEmpty(s.getBoard()[2]) && s.getBoard()[2].equalsIgnoreCase(s.getBoard()[5]) && s.getBoard()[2].equalsIgnoreCase(s.getBoard()[8]))) {
+            if(s.getBoard()[2].equalsIgnoreCase("x")) return 1;
             return -1;
         }
-        if ((!s.spotEmpty(s.getBoard()[2]) && s.getBoard()[0].equalsIgnoreCase(s.getBoard()[4]) && s.getBoard()[4].equalsIgnoreCase(s.getBoard()[8]))) {
+        if ((!s.spotEmpty(s.getBoard()[0]) && s.getBoard()[0].equalsIgnoreCase(s.getBoard()[4]) && s.getBoard()[0].equalsIgnoreCase(s.getBoard()[8]))) {
             if(s.getBoard()[0].equalsIgnoreCase("x")) return 1;
             return -1;
         }
