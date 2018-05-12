@@ -24,7 +24,7 @@ public class LikelihoodWeighting {
         XMLBIFParser parser = new XMLBIFParser();
         Assignment e = new Assignment();
         int n = Integer.parseInt(args[0]);
-        String filename = "bn/examples/" + args[1];
+        String filename = args[1];
 
         int dotIndex = filename.indexOf('.');
         String fileType = filename.substring(dotIndex+1, filename.length());
