@@ -1,12 +1,15 @@
 package bn.inference;
 
 import bn.core.*;
+import bn.parser.BIFParser;
 import bn.parser.MyParser;
 import bn.parser.XMLBIFParser;
 import org.xml.sax.SAXException;
 
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +20,25 @@ public class LikelihoodWeighting {
 
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-
+        BayesianNetwork bn;
         XMLBIFParser parser = new XMLBIFParser();
         Assignment e = new Assignment();
-        MyParser p = new MyParser();
         int n = Integer.parseInt(args[0]);
-        BayesianNetwork bn = parser.readNetworkFromFile((String) args[1]);
+        String filename = "bn/examples/" + args[1];
+
+        int dotIndex = filename.indexOf('.');
+        String fileType = filename.substring(dotIndex+1, filename.length());
+        if(fileType.equalsIgnoreCase("xml")) {
+            XMLBIFParser xbParser = new XMLBIFParser();
+            bn = xbParser.readNetworkFromFile(filename);
+        } else if(fileType.equalsIgnoreCase("bif")) {
+            BIFParser bParser = new BIFParser(new FileInputStream(new File(filename)));
+            bn = bParser.parseNetwork();
+        } else {
+            bn = null;
+            throw new IOException("File Format Not Supported");
+        }
+
         RandomVariable Rand = bn.getVariableByName((String) args[2]);
         int count = 3;
         while(count < args.length){
