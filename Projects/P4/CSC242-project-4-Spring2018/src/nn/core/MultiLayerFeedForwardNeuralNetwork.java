@@ -84,6 +84,11 @@ abstract public class MultiLayerFeedForwardNeuralNetwork extends FeedForwardNeur
 			}
 		}
 	}
+
+    @Override
+    public LogisticUnit[] getOutputUnits() {
+        return (LogisticUnit[])this.layers[this.layers.length-1];
+    }
 	
 	/**
 	 * Output of a MultiLayerFeedForwardNeuralNetwork is the index of output unit
@@ -179,7 +184,38 @@ abstract public class MultiLayerFeedForwardNeuralNetwork extends FeedForwardNeur
 	 * (3) ``Propagating deltas backward from output layer to input layer''
 	 * (4) ``Update every weight in network using deltas''
 	 */
-	public void backprop(Example example, double alpha) {
+	private void backprop(Example example, double alpha) {
+        LogisticUnit[] outputUnits = getOutputUnits();
+        double[] delta = new double[outputUnits.length];
+        for(int j = 0; j < outputUnits.length; j++) {
+            delta[j] = outputUnits[j].activationPrime(outputUnits[j].getInputSum()) * (example.outputs[j] - outputUnits[j].output);
+        }
+        for(int l = layers.length - 1; l >= 1; l--) {
+            for(int i = 0; i < outputUnits.length; i++) {
+
+                delta[i] = outputUnits[i].activationPrime(outputUnits[i].getInputSum()) * sumOfProducts(delta, i, l);
+            }
+        }
+        for(int i = 1; i < getNumLayers(); i++) { // change this to 1. check for unsolicited behavior later
+            for(int j = 0; j < getLayerUnits(i).length; j++) {
+                for(int k = 0; k < getLayerUnits(i)[j].incomingConnections.size(); k++) {
+                    getLayerUnits(i)[j].update(getLayerUnits(i)[j].getWeight(i), delta);
+                    //getLayerUnits(i)[j].setWeight(k, getLayerUnits(i)[j].getWeight(k) + alpha * getLayerUnits(i)[j].incomingConnections.get(k).weight * delta[k]);
+                }
+            }
+
+        }
+	}
+
+	private double sumOfProducts(double[] delta, int i, int l) {
+	    double sum = 0;
+	    for(int j = 0; j < delta.length; j++) {
+	        sum += getLayerUnits(l)[i].getWeight(j)* delta[j];
+
+        }
+        return sum;
+    }
+
 
 	    // Must be implemented by you
 	        // for each node j in the output layer do
@@ -190,7 +226,7 @@ abstract public class MultiLayerFeedForwardNeuralNetwork extends FeedForwardNeur
 		// for each weight w_ij in network do
 					// w_ij <- w_ij + alpha * a_i * delta_j
 
-	}
+
 	
 	/**
 	 * Return true if this MultiLayerFeedForwardNeuralNetwork gets the right answer

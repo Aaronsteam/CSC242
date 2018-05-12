@@ -41,6 +41,8 @@ abstract public class FeedForwardNeuralNetwork extends NeuralNetwork {
 		return (NeuronUnit[])this.layers[this.layers.length-1];
 	}
 
+
+
 	/**
 	 * Return the NeuronUnits in layer i of this FeedForwardNeuralNetwork.
 	 */

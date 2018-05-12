@@ -28,8 +28,10 @@ public class PerceptronClassifierTest {
 		System.out.println("alpha: " + alpha);
 		
 		//ClassifierDisplay display = new ClassifierDisplay("PerceptronClassifier: " + filename);
-		List<Example> examples = Data.readFromFile(filename);
-		int ninputs = examples.get(0).inputs.length; 
+
+        List<Example> allExamples = Data.readFromFile(filename);
+        List<Example> someExamples = allExamples.subList(0, (int)(allExamples.size() *0.2));
+		int ninputs = allExamples.get(0).inputs.length;
 		PerceptronClassifier classifier = new PerceptronClassifier(ninputs) {
 			public void trainingReport(List<Example> examples, int stepnum, int nsteps) {
 				double accuracy = accuracy(examples);
@@ -38,10 +40,10 @@ public class PerceptronClassifierTest {
 			}
 		};
 		if (alpha > 0) {
-			classifier.train(examples, nsteps, alpha);
+			classifier.train(someExamples, nsteps, alpha);
 		} else {
 			double start = System.nanoTime();
-			classifier.train(examples, 100000, new LearningRateSchedule() {
+			classifier.train(someExamples, 100000, new LearningRateSchedule() {
 				public double alpha(int t) { return 1000.0/(1000.0+t); }
 			});
 			double end = System.nanoTime();

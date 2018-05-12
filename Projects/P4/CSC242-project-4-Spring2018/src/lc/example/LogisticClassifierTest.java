@@ -29,8 +29,9 @@ public class LogisticClassifierTest {
 		System.out.println("alpha: " + alpha);
 		
 		//ClassifierDisplay display = new ClassifierDisplay("LogisticClassifier: " + filename);
-		List<Example> examples = Data.readFromFile(filename);
-		int ninputs = examples.get(0).inputs.length; 
+		List<Example> allExamples = Data.readFromFile(filename);
+		List<Example> someExamples = allExamples.subList(0, (int)(allExamples.size()));
+		int ninputs = someExamples.get(0).inputs.length;
 		LogisticClassifier classifier = new LogisticClassifier(ninputs) {
 			public void trainingReport(List<Example> examples, int stepnum, int nsteps) {
 				double oneMinusError = 1.0-squaredErrorPerSample(examples);
@@ -39,10 +40,10 @@ public class LogisticClassifierTest {
 			}
 		};
 		if (alpha > 0) {
-			classifier.train(examples, nsteps, alpha);
+			classifier.train(someExamples, nsteps, alpha);
 		} else {
 		    double start = System.nanoTime();
-			classifier.train(examples, 100000, new LearningRateSchedule() {
+			classifier.train(someExamples, 100000, new LearningRateSchedule() {
 				public double alpha(int t) { return 1000.0/(1000.0+t); }
 			});
 			double end = System.nanoTime();

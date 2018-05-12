@@ -5,7 +5,9 @@ package nn.core;
  * activation function.
  */
 public class LogisticUnit extends NeuronUnit {
-	
+
+
+
 	/**
 	 * The activation function for a LogisticUnit is a 0-1 sigmoid
 	 * centered at z=0: 1/(1+e^(-z)). (AIMA Fig 18.7)
@@ -35,7 +37,10 @@ public class LogisticUnit extends NeuronUnit {
 	 */
 	@Override
 	public void update(double[] x, double y, double alpha) {
-	    // Must be implemented by you
+	    double hwx = h_w(x);
+	    for(int i = 1; i < x.length + 1; i++) {
+	        setWeight(i, getWeight(i) + alpha * (y - hwx) * hwx * (1 - hwx) * x[i-1]);
+        }
 	}
 	
 }

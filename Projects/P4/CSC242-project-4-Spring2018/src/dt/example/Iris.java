@@ -4,7 +4,7 @@ import dt.core.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.*;
 
 public class Iris extends Problem{
 
@@ -23,12 +23,23 @@ public class Iris extends Problem{
     public static void main(String[] args) throws IOException {
         Problem problem = new Iris();
         problem.dump();
-        Set<Example> examples = problem.readExamplesFromCSVFile(new File("dt/example/" + args[0]));
-        for (Example e : examples) {
+        Set<Example> allExamples = problem.readExamplesFromCSVFile(new File("dt/example/" + args[0]));
+        List<Example> list = new ArrayList<>(allExamples);
+        //half 150 entries in list.
+
+        List<Example> newList = list.subList(0, 150);
+        Set<Example> someExamples = new HashSet<>(newList);
+        //p
+        for (Example e : someExamples) {
             System.out.println(e);
         }
-        DecisionTree tree = new DecisionTreeLearner(problem).learn(examples);
+        long startTime = System.nanoTime();
+        DecisionTree tree = new DecisionTreeLearner(problem).learn(someExamples);
+        long estTime = System.nanoTime() - startTime;
         tree.dump();
-        tree.test(examples);
+        tree.test(allExamples);
+        System.out.println("\nEst Time: " + estTime + "ns");
     }
 }
+
+
